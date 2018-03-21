@@ -55,6 +55,10 @@ html, body {
   color: black;
 }
 
+.char.space {
+  width: .5em;
+}
+
 .char.correct {
   color: #777777;
 }
