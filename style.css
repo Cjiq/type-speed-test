@@ -31,3 +31,34 @@ html, body {
 #start-button:focus {
   outline:0;
 }
+
+#top-bar {
+  font-family: 'Roboto', sans-serif;
+}
+
+#top-bar thead {
+  text-align: left;
+}
+
+#top-bar tbody tr {
+  font-size: 1.5em;
+}
+
+#top-bar tbody tr td {
+  padding-right: 50px; 
+}
+
+.char {
+  font-family: 'Roboto Mono', monospace;
+  display: inline-block;
+  font-size: 2em;
+  color: black;
+}
+
+.char.correct {
+  color: #777777;
+}
+
+.char.error {
+  color: red;
+}
