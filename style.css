@@ -65,6 +65,7 @@ html, body {
 
 .char.error {
   color: red;
+  text-decoration: underline;
 }
 
 .char.active {
