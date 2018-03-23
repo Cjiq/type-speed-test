@@ -37,7 +37,7 @@ let numError = 0;
 let index = 0;
 function keyPressHandler(event) {
   if (nonRelevantKey(event)) return;
-  if (isEndOfWords()) {
+  if (isEndOfLine()) {
     newWordSequence();
     return;
   }
@@ -68,7 +68,7 @@ function nonRelevantKey(event) {
   return false;
 }
 
-function isEndOfWords() {
+function isEndOfLine() {
   return asCharSequence(wordSequences.slice(-1).pop()).length - 1 === index;
 }
 
