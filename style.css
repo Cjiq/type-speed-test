@@ -6,10 +6,47 @@ html, body {
 }
 
 #main-container {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#overlay {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(255,255,255,.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#overlay .box {
+  width: 100%;
+  height: 100%;
+  max-width: 300px;
+  max-height: 150px;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  background-color: #d9efed;
+  border-radius: 20px;
+  box-shadow: 1px 1px 8px 0px #808080;
+  font-family: 'Roboto', sans-serif;
+  font-size: 2em;  
+}
+
+#headline {
+  display: block;
+  font-size: .5em;
+}
+
+#result-wpm {
+  display: block;
 }
 
 #start-button {
