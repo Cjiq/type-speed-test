@@ -5,13 +5,13 @@ const timerElem = document.getElementById("timer");
 const accuracy = document.getElementById("accuracy");
 
 startBtn.addEventListener("click", () => setupGame());
-document.addEventListener("keydown", (e) => keyPressHandler(e));
 
 const wordSequences = [];
 const correctsPerSeq = [];
 const charElems = [];
 
 function setupGame() {
+  document.addEventListener("keydown", keyPressHandler);
   showBoard();
   startTimer();
   newWordSequence();
@@ -145,7 +145,25 @@ function startTimer() {
 }
 
 function exitGame(timer) {
+  document.removeEventListener("keydown", keyPressHandler);
   clearInterval(timer);
+  showResults();
+}
+
+function showResults() {
+  document.getElementById("overlay").style.display = "flex";
+  document.getElementById("result-wpm").innerHTML = computeWPM(asCharSequence(wordSequences.map(s => s.join(""))), corrects, 60);
+}
+
+function computeWPM(chars, corrects, time) {
+  const correctsCpy = corrects.slice();
+  return (
+    chars.slice(0, chars.slice(0, corrects.length).lastIndexOf("\u00A0")) // Get all the complete words
+         .join("") // Turn into single string
+         .split("\u00A0") // Turn into the words
+         .map(w => correctsCpy.splice(w.length).every(Boolean)) // See if we typed each word correct
+         .filter(Boolean).length / time // Count correct words
+  ) * 60;
 }
 
 function getRandomWord(n = 1) {
