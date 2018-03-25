@@ -152,17 +152,20 @@ function exitGame(timer) {
 
 function showResults() {
   document.getElementById("overlay").style.display = "flex";
-  document.getElementById("result-wpm").innerHTML = computeWPM(asCharSequence(wordSequences.map(s => s.join(""))), corrects, 60);
+  const chars = asCharSequence(wordSequences.map(s => s.join("")));
+  const corr = correctsPerSeq.reduce((acc, curr) => acc.concat(curr), []);
+  document.getElementById("result-wpm").innerHTML = computeWPM(chars, corr, 60);
 }
 
 function computeWPM(chars, corrects, time) {
+  console.log(chars, corrects, time);
   const correctsCpy = corrects.slice();
   return (
-    chars.slice(0, chars.slice(0, corrects.length).lastIndexOf("\u00A0")) // Get all the complete words
-         .join("") // Turn into single string
-         .split("\u00A0") // Turn into the words
-         .map(w => correctsCpy.splice(w.length).every(Boolean)) // See if we typed each word correct
-         .filter(Boolean).length / time // Count correct words
+    chars.slice(0, chars.slice(0, corrects.length).lastIndexOf("\u00A0"))
+         .join("")
+         .split("\u00A0")
+         .map(w => correctsCpy.splice(w.length).every(Boolean))
+         .filter(Boolean).length / time
   ) * 60;
 }
 
