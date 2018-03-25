@@ -8,11 +8,11 @@ the game and the full-implementation branch is what will be built during the
 workshop session.
 
 ## Get started
-If you are using a mac that has google chrome installed, everything you need
+If you are using a mac, everything you need
 to do is to run the following commands in a terminal window:
 
 ```
-git clone git@github.com:linuslagerhjelm/type-speed-test.git && cd type-speed-test && open -a "Google Chrome" index.html
+git clone git@github.com:linuslagerhjelm/type-speed-test.git && cd type-speed-test && open -a "Safari" index.html
 ```
  if not, you can still clone the repository:
 
