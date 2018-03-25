@@ -8,6 +8,7 @@ startBtn.addEventListener("click", () => setupGame());
 document.addEventListener("keydown", (e) => keyPressHandler(e));
 
 const wordSequences = [];
+const correctsPerSeq = [];
 const charElems = [];
 
 function setupGame() {
@@ -18,6 +19,9 @@ function setupGame() {
 
 function newWordSequence() {
   textContainer.innerHTML = "";
+  correctsPerSeq.push(corrects);
+  corrects = [];
+
   charElems.length = 0; /* Don't argue with the standard :P */
   const words = getRandomWord(5);
   wordSequences.push(words);
@@ -31,16 +35,27 @@ function newWordSequence() {
   charElems[index = 0].classList.add("active");  
 }
 
+function prevWordSequence() {
+  textContainer.innerHTML = "";
+  charElems.length = 0;
+  wordSequences.pop();
+  const words = wordSequences.slice(-1).pop();
+  corrects = correctsPerSeq.splice(-1).pop();
+  
+  asCharSequence(words).forEach((char, i) => {
+    const elem = asDomElem(char);
+    elem.classList.add((corrects[i] ? "correct" : "error"));
+    charElems.push(elem);
+    textContainer.appendChild(elem);
+  })
+}
+
 let corrects = [];
 let numCorrect = 0;
 let numError = 0;
 let index = 0;
 function keyPressHandler(event) {
   if (nonRelevantKey(event)) return;
-  if (isEndOfLine()) {
-    newWordSequence();
-    return;
-  }
 
   const elem = charElems[index];
   elem.classList.remove("active");  
@@ -48,6 +63,11 @@ function keyPressHandler(event) {
   if (event.key === "Backspace") {
     moveBackwards();
   } else {
+    if (isEndOfLine()) {
+      newWordSequence();
+      return;
+    }
+    
     const wasCorrect = (event.key === elem.innerText) || (event.key === " " && elem.innerText === "\u00A0");
     moveForward(wasCorrect);
   }
@@ -73,8 +93,14 @@ function isEndOfLine() {
 }
 
 function moveBackwards() {
-  if (index === 0) {
-    charElems[index].classList.add("active");
+  if(index === 0) {
+    if (wordSequences.length <= 1) {
+      charElems[index].classList.add("active");
+      return;
+    }
+
+    prevWordSequence();
+    index = charElems.length - 1;
     return;
   }
 
@@ -115,7 +141,7 @@ function startTimer() {
       const seconds = 60 - Math.floor(((now - startTime)) / 1000);
       timerElem.innerHTML = `${seconds} s`;
       if (seconds === 0)  exitGame(timer);
-  })
+  }, 1000);
 }
 
 function exitGame(timer) {
