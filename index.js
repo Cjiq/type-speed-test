@@ -12,9 +12,11 @@ const charElems = [];
 
 function setupGame() {
   document.addEventListener("keydown", keyPressHandler);
-  showBoard();
-  startTimer();
+  startBtn.style.display = "none";
+  board.style.display = "block";
+
   newWordSequence();
+  startTimer();
 }
 
 function newWordSequence() {
@@ -30,7 +32,7 @@ function newWordSequence() {
     const elem = asDomElem(char);
     charElems.push(elem);
     textContainer.appendChild(elem);
-  })
+  });
 
   charElems[index = 0].classList.add("active");  
 }
@@ -47,7 +49,7 @@ function prevWordSequence() {
     elem.classList.add((corrects[i] ? "correct" : "error"));
     charElems.push(elem);
     textContainer.appendChild(elem);
-  })
+  });
 }
 
 let corrects = [];
@@ -129,18 +131,13 @@ function moveForward(correct) {
   charElems[++index].classList.add("active");
 }
 
-function showBoard() {
-  startBtn.style.display = "none";
-  board.style.display = "block";
-}
-
 function startTimer() {
   const startTime = new Date().getTime();
   const timer = setInterval(() => {
       const now = new Date().getTime();
       const seconds = 60 - Math.floor(((now - startTime)) / 1000);
       timerElem.innerHTML = `${seconds} s`;
-      if (seconds === 0)  exitGame(timer);
+      if (seconds <= 0)  exitGame(timer);
   }, 1000);
 }
 
@@ -157,8 +154,7 @@ function showResults() {
   document.getElementById("result-wpm").innerHTML = computeWPM(chars, corr, 60);
 }
 
-function computeWPM(chars, corrects, time) {
-  console.log(chars, corrects, time);
+function computeWPM(chars, corrects, time) {  
   const correctsCpy = corrects.slice();
   return (
     chars.slice(0, chars.slice(0, corrects.length).lastIndexOf("\u00A0"))
