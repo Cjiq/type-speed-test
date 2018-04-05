@@ -4,11 +4,7 @@ const textContainer = document.getElementById("text-container");
 const timerElem = document.getElementById("timer");
 const accuracy = document.getElementById("accuracy");
 
-startBtn.addEventListener("click", () => setupGame());
-
-const wordSequences = [];
-const correctsPerSeq = [];
-const charElems = [];
+startBtn.addEventListener("click", setupGame);
 
 function setupGame() {
   document.addEventListener("keydown", keyPressHandler);
@@ -19,6 +15,9 @@ function setupGame() {
   startTimer();
 }
 
+const wordSequences = [];
+const correctsPerSeq = [];
+const charElems = [];
 function newWordSequence() {
   textContainer.innerHTML = "";
   correctsPerSeq.push(corrects);
@@ -35,21 +34,6 @@ function newWordSequence() {
   });
 
   charElems[index = 0].classList.add("active");  
-}
-
-function prevWordSequence() {
-  textContainer.innerHTML = "";
-  charElems.length = 0;
-  wordSequences.pop();
-  const words = wordSequences.slice(-1).pop();
-  corrects = correctsPerSeq.splice(-1).pop();
-  
-  asCharSequence(words).forEach((char, i) => {
-    const elem = asDomElem(char);
-    elem.classList.add((corrects[i] ? "correct" : "error"));
-    charElems.push(elem);
-    textContainer.appendChild(elem);
-  });
 }
 
 let corrects = [];
@@ -131,6 +115,21 @@ function moveForward(correct) {
   charElems[++index].classList.add("active");
 }
 
+function prevWordSequence() {
+  textContainer.innerHTML = "";
+  charElems.length = 0;
+  wordSequences.pop();
+  const words = wordSequences.slice(-1).pop();
+  corrects = correctsPerSeq.splice(-1).pop();
+  
+  asCharSequence(words).forEach((char, i) => {
+    const elem = asDomElem(char);
+    elem.classList.add((corrects[i] ? "correct" : "error"));
+    charElems.push(elem);
+    textContainer.appendChild(elem);
+  });
+}
+
 function startTimer() {
   const startTime = new Date().getTime();
   const timer = setInterval(() => {
@@ -150,7 +149,7 @@ function exitGame(timer) {
 function showResults() {
   document.getElementById("overlay").style.display = "flex";
   const chars = asCharSequence(wordSequences.map(s => s.join("")));
-  const corr = correctsPerSeq.reduce((acc, curr) => acc.concat(curr), []);
+  const corr = correctsPerSeq ? corrects : correctsPerSeq.reduce((acc, curr) => acc.concat(curr), []);
   document.getElementById("result-wpm").innerHTML = computeWPM(chars, corr, 60);
 }
 
