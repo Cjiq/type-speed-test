@@ -15,6 +15,52 @@ function setupGame() {
   startTimer();
 }
 
+let corrects = [];
+let numCorrect = 0;
+let numError = 0;
+let index = 0;
+function keyPressHandler() {
+  if (nonRelevantKey(event)) return;
+
+  const elem = charElems[index];
+  elem.classList.remove("active");  
+  
+  if (event.key === "Backspace") {
+     moveBackwards();
+  } else {
+    if (isEndOfLine()) {
+      corrects.push(wasCorrect(event, elem));
+      newWordSequence();
+      return;
+    }
+    
+    const correct = wasCorrect(event, elem);
+    moveForward(correct);
+  }
+
+  accuracy.innerText = `${Math.floor(numCorrect / (numCorrect + numError) * 100) || 0}%`
+}
+
+function wasCorrect(e, elem) {
+  return (e.key === elem.innerText) || (e.key === " " && elem.innerText === "\u00A0");
+}
+
+function moveForward(correct) {
+  corrects.push(correct);
+  if (correct) {
+    numCorrect++;
+    charElems[index].classList.add("correct");
+  } else {
+    numError++;
+    charElems[index].classList.add("error");
+  }
+  charElems[++index].classList.add("active");
+}
+
+function isEndOfLine() {
+  return asCharSequence(wordSequences.slice(-1).pop()).length - 1 === index;
+}
+
 const wordSequences = [];
 const correctsPerSeq = [];
 const charElems = [];
@@ -33,136 +79,7 @@ function newWordSequence() {
     textContainer.appendChild(elem);
   });
 
-  charElems[index = 0].classList.add("active");  
-}
-
-let corrects = [];
-let numCorrect = 0;
-let numError = 0;
-let index = 0;
-function keyPressHandler(event) {
-  if (nonRelevantKey(event)) return;
-
-  const elem = charElems[index];
-  elem.classList.remove("active");  
-  
-  if (event.key === "Backspace") {
-    moveBackwards();
-  } else {
-    if (isEndOfLine()) {
-      newWordSequence();
-      return;
-    }
-    
-    const wasCorrect = (event.key === elem.innerText) || (event.key === " " && elem.innerText === "\u00A0");
-    moveForward(wasCorrect);
-  }
-
-  accuracy.innerText = `${Math.floor(numCorrect / (numCorrect + numError) * 100) || 0}%`
-}
-
-function nonRelevantKey(event) {
-  if (event.ctrlKey) return true;
-  if (event.shiftKey) return true;
-  if (event.key === "Alt") return true;
-  if (event.key === "ArrowLeft") return true;
-  if (event.key === "ArrowUp") return true;
-  if (event.key === "ArrowRight") return true;
-  if (event.key === "ArrowDown") return true;
-  if (event.key === "Meta") return true;
-  if (event.key === "Dead") return true;
-  return false;
-}
-
-function isEndOfLine() {
-  return asCharSequence(wordSequences.slice(-1).pop()).length - 1 === index;
-}
-
-function moveBackwards() {
-  if(index === 0) {
-    if (wordSequences.length <= 1) {
-      charElems[index].classList.add("active");
-      return;
-    }
-
-    prevWordSequence();
-    index = charElems.length - 1;
-    return;
-  }
-
-  const elem = charElems[--index];
-    if (corrects.pop()) {
-      elem.classList.remove("correct");
-      numCorrect--;
-    } 
-    else {
-      elem.classList.remove("error");
-      numError--;
-    }
-    elem.classList.add("active");
-}
-
-function moveForward(correct) {
-  if (correct) {
-    numCorrect++;
-    corrects.push(correct);
-    charElems[index].classList.add("correct");
-  } else {
-    numError++;
-    corrects.push(correct);
-    charElems[index].classList.add("error");
-  }
-  charElems[++index].classList.add("active");
-}
-
-function prevWordSequence() {
-  textContainer.innerHTML = "";
-  charElems.length = 0;
-  wordSequences.pop();
-  const words = wordSequences.slice(-1).pop();
-  corrects = correctsPerSeq.splice(-1).pop();
-  
-  asCharSequence(words).forEach((char, i) => {
-    const elem = asDomElem(char);
-    elem.classList.add((corrects[i] ? "correct" : "error"));
-    charElems.push(elem);
-    textContainer.appendChild(elem);
-  });
-}
-
-function startTimer() {
-  const startTime = new Date().getTime();
-  const timer = setInterval(() => {
-      const now = new Date().getTime();
-      const seconds = 60 - Math.floor(((now - startTime)) / 1000);
-      timerElem.innerHTML = `${seconds} s`;
-      if (seconds <= 0)  exitGame(timer);
-  }, 1000);
-}
-
-function exitGame(timer) {
-  document.removeEventListener("keydown", keyPressHandler);
-  clearInterval(timer);
-  showResults();
-}
-
-function showResults() {
-  document.getElementById("overlay").style.display = "flex";
-  const chars = asCharSequence(wordSequences.map(s => s.join("")));
-  const corr = correctsPerSeq ? corrects : correctsPerSeq.reduce((acc, curr) => acc.concat(curr), []);
-  document.getElementById("result-wpm").innerHTML = computeWPM(chars, corr, 60);
-}
-
-function computeWPM(chars, corrects, time) {
-  if (!corrects.length) return 0;
-  const correctsCpy = corrects.slice();
-  return (
-    chars.slice(0, chars.slice(0, corrects.length).lastIndexOf("\u00A0"))
-         .join("")
-         .split("\u00A0")
-         .map(w => correctsCpy.splice(w.length).every(Boolean))
-         .filter(Boolean).length / time
-  ) * 60;
+  charElems[index = 0].classList.add("active");
 }
 
 function getRandomWord(n = 1) {
@@ -180,4 +97,92 @@ function asDomElem(char) {
   div.classList.add("char");
   div.innerText = char;
   return div;
+}
+
+function startTimer() {
+  const startTime = new Date().getTime();
+  const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const seconds = 20 - Math.floor(((now - startTime)) / 1000);
+      timerElem.innerHTML = `${seconds} s`;
+      if (seconds <= 0)  exitGame(timer);
+  }, 1000);
+}
+
+function exitGame(timer) {
+  document.removeEventListener("keydown", keyPressHandler);
+  clearInterval(timer);
+  showResults();
+}
+
+function showResults() {
+  correctsPerSeq.push(corrects);
+  document.getElementById("overlay").style.display = "flex";
+  const chars = asCharSequence(wordSequences.map(s => s.join("")));
+  const corr = correctsPerSeq.reduce((acc, curr) => acc.concat(curr), []);
+  document.getElementById("result-wpm").innerHTML = computeWPM(chars, corr);
+}
+
+function computeWPM(chars, corrects) {
+  if (!corrects.length) return 0;
+  const correctsCpy = corrects.slice();
+  return (
+    chars.slice(0, chars.slice(0, corrects.length).lastIndexOf("\u00A0"))
+         .join("")
+         .split("\u00A0")
+         .map(w => correctsCpy.splice(w.length).every(Boolean))
+         .filter(Boolean).length
+  );
+}
+
+function moveBackwards() {
+  if(index === 0) {
+    if (wordSequences.length <= 1) {
+      charElems[index].classList.add("active");
+      return;
+    }
+
+    prevWordSequence();
+    charElems[index = charElems.length - 1].classList.add("active");
+    return;
+  }
+
+  const elem = charElems[--index];
+    if (corrects.pop()) {
+      elem.classList.remove("correct");
+      numCorrect--;
+    } 
+    else {
+      elem.classList.remove("error");
+      numError--;
+    }
+    elem.classList.add("active");
+}
+
+function prevWordSequence() {
+  textContainer.innerHTML = "";
+  charElems.length = 0;
+  wordSequences.pop();
+  const words = wordSequences.slice(-1).pop();
+  corrects = correctsPerSeq.splice(-1).pop();
+  
+  asCharSequence(words).forEach((char, i) => {
+    const elem = asDomElem(char);
+    elem.classList.add((corrects[i] ? "correct" : "error"));
+    charElems.push(elem);
+    textContainer.appendChild(elem);
+  });
+}
+
+function nonRelevantKey(event) {
+  if (event.ctrlKey) return true;
+  if (event.shiftKey) return true;
+  if (event.key === "Alt") return true;
+  if (event.key === "ArrowLeft") return true;
+  if (event.key === "ArrowUp") return true;
+  if (event.key === "ArrowRight") return true;
+  if (event.key === "ArrowDown") return true;
+  if (event.key === "Meta") return true;
+  if (event.key === "Dead") return true;
+  return false;
 }
