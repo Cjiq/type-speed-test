@@ -153,7 +153,8 @@ function showResults() {
   document.getElementById("result-wpm").innerHTML = computeWPM(chars, corr, 60);
 }
 
-function computeWPM(chars, corrects, time) {  
+function computeWPM(chars, corrects, time) {
+  if (!corrects.length) return 0;
   const correctsCpy = corrects.slice();
   return (
     chars.slice(0, chars.slice(0, corrects.length).lastIndexOf("\u00A0"))
